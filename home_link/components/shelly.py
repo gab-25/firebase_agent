@@ -1,0 +1,2 @@
+class Shelly:
+    pass
