@@ -1,0 +1,2 @@
+class Mqtt:
+    pass
