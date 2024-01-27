@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from home_link.config import Config, Platform
+from home_link.config import Config, Device, Platform
 from home_link.components.shelly import Shelly
 
 
@@ -12,11 +12,18 @@ logging.basicConfig(
 )
 
 
+async def __init_devices(devices: list[Device]):
+    for device in devices:
+        if device.platform == Platform.SHELLY:
+            shelly_device = Shelly(device.host)
+            await shelly_device.connect_device()
+
+    while True:
+        await asyncio.sleep(0.1)
+
+
 def main():
     logging.info("start home-link")
 
     config = Config()
-    for device in config.devices:
-        if device.platform == Platform.SHELLY:
-            shelly_device = Shelly(device.host)
-            asyncio.run(shelly_device.connect_device())
+    asyncio.run(__init_devices(config.devices))
