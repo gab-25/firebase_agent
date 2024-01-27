@@ -1,9 +1,8 @@
 import asyncio
 import logging
 
-from websockets import serve
-
 from home_link.config import Config
+from home_link.components.shelly import Shelly
 
 
 def main():
@@ -16,16 +15,7 @@ def main():
 
     config = Config()
 
-    asyncio.run(start_serve())
+    shelly = Shelly()
 
-    logging.info("stop home-link")
-
-
-async def start_serve():
-    async with serve(echo, "localhost", 5000):
-        await asyncio.Future()
-
-
-async def echo(websocket):
-    async for message in websocket:
-        await websocket.send(message)
+    asyncio.run(shelly.test_block_device())
+    asyncio.run(shelly.test_rpc_device())
