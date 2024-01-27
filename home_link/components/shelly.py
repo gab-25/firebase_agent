@@ -1,10 +1,10 @@
-from pprint import pprint
-
+import logging
 import aiohttp
 
 from aioshelly.block_device import COAP, BlockDevice
 from aioshelly.rpc_device import RpcDevice, WsServer
-from aioshelly.common import ConnectionOptions
+from aioshelly.common import ConnectionOptions, get_info
+from aioshelly.const import BLOCK_GENERATIONS, RPC_GENERATIONS
 from aioshelly.exceptions import (
     DeviceConnectionError,
     FirmwareUnsupported,
@@ -13,50 +13,36 @@ from aioshelly.exceptions import (
 
 
 class Shelly:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, host: str) -> None:
+        self.options = ConnectionOptions(host)
 
-    async def test_block_device(self):
-        """Test Gen1 Block (CoAP) based device."""
-        options = ConnectionOptions("192.168.1.165", "username", "password")
-
-        async with aiohttp.ClientSession() as aiohttp_session, COAP() as coap_context:
+    async def connect_device(self):
+        async with aiohttp.ClientSession() as aiohttp_session:
             try:
-                device = await BlockDevice.create(
-                    aiohttp_session, coap_context, options
-                )
+                info_device = await get_info(aiohttp_session, self.options.ip_address)
+                gen_device = info_device.get("gen", 1)
+                if gen_device in BLOCK_GENERATIONS:
+                    device = await self.__block_device(aiohttp_session)
+                if gen_device in RPC_GENERATIONS:
+                    device = await self.__rpc_device(aiohttp_session)
+                logging.info("device %s connected!", device.name)
             except FirmwareUnsupported as err:
-                print(f"Device firmware not supported, error: {repr(err)}")
-                return
+                logging.error("Device firmware not supported, error: %s", repr(err))
             except InvalidAuthError as err:
-                print(f"Invalid or missing authorization, error: {repr(err)}")
-                return
+                logging.error("Invalid or missing authorization, error: %s", repr(err))
             except DeviceConnectionError as err:
-                print(f"Error connecting to {options.ip_address}, error: {repr(err)}")
-                return
+                logging.error(
+                    "Error connecting to %s, error: %s",
+                    self.options.ip_address,
+                    repr(err),
+                )
 
-            for block in device.blocks:
-                print(block)
-                pprint(block.current_values())
-                print()
+    async def __block_device(self, aiohttp_session):
+        async with COAP() as coap_context:
+            return await BlockDevice.create(aiohttp_session, coap_context, self.options)
 
-    async def test_rpc_device(self):
-        """Test Gen2/Gen3 RPC (WebSocket) based device."""
-        options = ConnectionOptions("192.168.1.188", "username", "password")
+    async def __rpc_device(self, aiohttp_session):
         ws_context = WsServer()
         await ws_context.initialize(8123)
 
-        async with aiohttp.ClientSession() as aiohttp_session:
-            try:
-                device = await RpcDevice.create(aiohttp_session, ws_context, options)
-            except FirmwareUnsupported as err:
-                print(f"Device firmware not supported, error: {repr(err)}")
-                return
-            except InvalidAuthError as err:
-                print(f"Invalid or missing authorization, error: {repr(err)}")
-                return
-            except DeviceConnectionError as err:
-                print(f"Error connecting to {options.ip_address}, error: {repr(err)}")
-                return
-
-            pprint(device.status)
+        return await RpcDevice.create(aiohttp_session, ws_context, self.options)
