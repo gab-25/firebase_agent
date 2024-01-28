@@ -5,20 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Flask",
+      "name": "Python: Home Link",
       "type": "python",
       "request": "launch",
-      "module": "flask",
-      "env": {
-        "FLASK_APP": "home_link",
-        "FLASK_DEBUG": "1"
-      },
-      "args": [
-        "run",
-        // "--no-debugger",
-        // "--no-reload"
-      ],
-      "jinja": true,
+      "program": "home_link/main.py",
+      "console": "integratedTerminal",
       "justMyCode": true
     }
   ]

@@ -25,5 +25,11 @@ async def __init_devices(devices: list[Device]):
 def main():
     logging.info("start home-link")
 
-    config = Config()
-    asyncio.run(__init_devices(config.devices))
+    config = Config.instance()
+
+    devices = list(config.devices.values())
+    asyncio.run(__init_devices(devices))
+
+
+if __name__ == "__main__":
+    main()
