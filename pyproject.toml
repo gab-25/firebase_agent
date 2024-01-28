@@ -8,9 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10,<3.13"
 pydantic = "^2.5.3"
-pyyaml = "^6.0.1"
-prometheus-client = "^0.19.0"
 aioshelly = "^8.0.1"
+toml = "^0.10.2"
+firebase-admin = "^6.4.0"
 
 [tool.poetry.scripts]
 home-link = "home_link.main:main"

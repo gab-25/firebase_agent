@@ -15,7 +15,7 @@ logging.basicConfig(
 async def __init_devices(devices: list[Device]):
     for device in devices:
         if device.platform == Platform.SHELLY:
-            shelly_device = Shelly(device.host)
+            shelly_device = Shelly(device)
             await shelly_device.connect_device()
 
     while True:

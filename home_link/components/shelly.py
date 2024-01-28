@@ -1,4 +1,5 @@
 import logging
+import datetime
 import aiohttp
 
 from aioshelly.block_device import COAP, BlockDevice, BlockUpdateType
@@ -10,12 +11,13 @@ from aioshelly.exceptions import (
     FirmwareUnsupported,
     InvalidAuthError,
 )
-from datetime import datetime
+
+from home_link.config import Device
 
 
 class Shelly:
-    def __init__(self, host: str) -> None:
-        self.options = ConnectionOptions(host)
+    def __init__(self, device: Device) -> None:
+        self.options = ConnectionOptions(device.host, device.username, device.password)
 
     async def connect_device(self):
         async with aiohttp.ClientSession() as aiohttp_session:
@@ -58,6 +60,6 @@ def device_updated(
 ) -> None:
     print()
     logging.info(
-        "%s Device updated! (%s)", datetime.now().strftime("%H:%M:%S"), update_type
+        "%s Device updated! (%s)", datetime.datetime.now().strftime("%H:%M:%S"), update_type
     )
     print(cb_device)

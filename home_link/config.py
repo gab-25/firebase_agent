@@ -1,7 +1,7 @@
 from enum import Enum
 import logging
 import pydantic
-import yaml
+import toml
 
 
 class Platform(Enum):
@@ -12,6 +12,8 @@ class Device(pydantic.BaseModel):
     platform: Platform
     name: str
     host: str
+    username: str = None
+    password: str = None
 
 
 class ConfigObj(pydantic.BaseModel):
@@ -19,7 +21,7 @@ class ConfigObj(pydantic.BaseModel):
 
 
 class Config:
-    FILENAME = "config.yml"
+    FILENAME = "config.toml"
 
     def __init__(self) -> None:
         self.__read_yaml()
@@ -27,5 +29,5 @@ class Config:
     def __read_yaml(self):
         logging.info("load config from file %s", self.FILENAME)
         with open(self.FILENAME, "r") as file:
-            config_obj = ConfigObj(**yaml.safe_load(file))
+            config_obj = ConfigObj(**toml.load(file))
             self.devices = config_obj.devices
