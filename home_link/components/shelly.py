@@ -12,23 +12,33 @@ from aioshelly.exceptions import (
     InvalidAuthError,
 )
 
-from home_link.config import Device
+from home_link.config import Config, Device
 
 
 class Shelly:
     def __init__(self, device: Device) -> None:
         self.options = ConnectionOptions(device.host, device.username, device.password)
+        self.name = device.name
+        self.gen = device.info.get("gen") if device.info is not None else None
 
     async def connect_device(self):
         async with aiohttp.ClientSession() as aiohttp_session:
             try:
-                info_device = await get_info(aiohttp_session, self.options.ip_address)
-                gen_device = info_device.get("gen", 1)
-                if gen_device in BLOCK_GENERATIONS:
+                if self.gen is None:
+                    logging.info("get info from device %s", self.name)
+                    info_device = await get_info(
+                        aiohttp_session, self.options.ip_address
+                    )
+                    self.gen = info_device.get("gen", 1)
+                    Config.instance().set_device_info(
+                        self.name, dict({**info_device, "gen": self.gen})
+                    )
+
+                if self.gen in BLOCK_GENERATIONS:
                     device = await self.__block_device(aiohttp_session)
-                if gen_device in RPC_GENERATIONS:
+                if self.gen in RPC_GENERATIONS:
                     device = await self.__rpc_device(aiohttp_session)
-                logging.info("device %s connected!", device.name)
+                logging.info("device %s connected!", self.name)
                 device.subscribe_updates(device_updated)
             except FirmwareUnsupported as err:
                 logging.error("Device firmware not supported, error: %s", repr(err))
@@ -60,6 +70,8 @@ def device_updated(
 ) -> None:
     print()
     logging.info(
-        "%s Device updated! (%s)", datetime.datetime.now().strftime("%H:%M:%S"), update_type
+        "%s Device updated! (%s)",
+        datetime.datetime.now().strftime("%H:%M:%S"),
+        update_type,
     )
     print(cb_device)
