@@ -12,23 +12,28 @@ logging.basicConfig(
 )
 
 
-async def __init_devices(devices: list[Device]):
-    for device in devices:
-        if device.platform == Platform.SHELLY:
-            shelly_device = Shelly(device)
-            await shelly_device.connect_device()
-
+async def _init_devices(devices: list[Device]):
     while True:
-        await asyncio.sleep(0.1)
+        for device in devices:
+            if device.platform == Platform.SHELLY:
+                shelly_device = Shelly(device)
+                await shelly_device.connect_device()
+            if device.platform == Platform.MQTT:
+                pass
+            if device.platform == Platform.HTTP:
+                pass
+
+        await asyncio.sleep(10)
 
 
 def main():
     logging.info("start home-link")
 
     config = Config.instance()
+    logging.getLogger().setLevel(config.log_level)
 
     devices = list(config.devices.values())
-    asyncio.run(__init_devices(devices))
+    asyncio.run(_init_devices(devices))
 
 
 if __name__ == "__main__":
