@@ -30,7 +30,7 @@ class Shelly:
                         aiohttp_session, self.options.ip_address
                     )
                     self.gen = info_device.get("gen", 1)
-                    Config.instance().set_device_info(
+                    Config.instance().update_device(
                         self.name, dict({**info_device, "gen": self.gen})
                     )
 

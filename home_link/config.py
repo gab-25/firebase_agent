@@ -1,12 +1,13 @@
 from enum import Enum
 import logging
-from typing import Any
 import pydantic
 import toml
 
 
 class Platform(str, Enum):
     SHELLY = "shelly"
+    MQTT = "mqtt"
+    HTTP = "http"
 
 
 class Device(pydantic.BaseModel):
@@ -22,34 +23,39 @@ class Device(pydantic.BaseModel):
 
 
 class ConfigObj(pydantic.BaseModel):
+    log_level: str
     devices: list[Device] = []
 
 
 class Config:
     FILENAME = "config.toml"
 
-    __instance = None
+    _instance = None
+
+    devices = {}
+    log_level = "INFO"
 
     def __init__(self) -> None:
         raise RuntimeError("Call instance() instead")
 
     @classmethod
     def instance(cls):
-        if cls.__instance is None:
-            cls.__instance = cls.__new__(cls)
-            cls.__read_toml(cls.__instance)
-        return cls.__instance
+        if cls._instance is None:
+            cls._instance = cls.__new__(cls)
+            cls._read_toml(cls._instance)
+        return cls._instance
 
-    def __read_toml(self):
+    def _read_toml(self):
         logging.info("load config from file %s", self.FILENAME)
         with open(self.FILENAME, "r") as file:
             config_obj = ConfigObj(**toml.load(file))
             self.devices = {device.name: device for device in config_obj.devices}
+            self.log_level = config_obj.log_level.upper()
 
-    def set_device_info(self, device_name: str, info: dict):
+    def update_device(self, device_name: str, info: dict):
         device = self.devices.get(device_name)
         device.info = info
         with open(self.FILENAME, "w") as file:
             devices = list(self.devices.values())
-            config_obj = ConfigObj(devices=devices)
+            config_obj = ConfigObj(log_level=self.log_level, devices=devices)
             toml.dump(config_obj.model_dump(), file)
