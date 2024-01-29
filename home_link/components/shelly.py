@@ -35,9 +35,9 @@ class Shelly:
                     )
 
                 if self.gen in BLOCK_GENERATIONS:
-                    device = await self.__block_device(aiohttp_session)
+                    device = await self._block_device(aiohttp_session)
                 if self.gen in RPC_GENERATIONS:
-                    device = await self.__rpc_device(aiohttp_session)
+                    device = await self._rpc_device(aiohttp_session)
                 logging.info("device %s connected!", self.name)
                 device.subscribe_updates(device_updated)
             except FirmwareUnsupported as err:
@@ -51,13 +51,13 @@ class Shelly:
                     repr(err),
                 )
 
-    async def __block_device(self, aiohttp_session):
+    async def _block_device(self, aiohttp_session):
         coap_context = COAP()
         await coap_context.initialize()
 
         return await BlockDevice.create(aiohttp_session, coap_context, self.options)
 
-    async def __rpc_device(self, aiohttp_session):
+    async def _rpc_device(self, aiohttp_session):
         ws_context = WsServer()
         await ws_context.initialize(8123)
 
