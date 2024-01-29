@@ -17,6 +17,7 @@ class Device(pydantic.BaseModel):
     username: str = None
     password: str = None
     info: dict = None
+    state: dict = None
 
     class Config:
         use_enum_values = True
@@ -52,9 +53,14 @@ class Config:
             self.devices = {device.name: device for device in config_obj.devices}
             self.log_level = config_obj.log_level.upper()
 
-    def update_device(self, device_name: str, info: dict):
+    def update_device(self, device_name: str, info: dict = None, state: dict = None):
+        logging.debug("update device %s, info: %s, state: %s", device_name, info, state)
         device = self.devices.get(device_name)
-        device.info = info
+        if info is not None:
+            device.info = info
+        if state is not None:
+            device.state = state
+
         with open(self.FILENAME, "w") as file:
             devices = list(self.devices.values())
             config_obj = ConfigObj(log_level=self.log_level, devices=devices)

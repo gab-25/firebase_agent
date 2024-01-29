@@ -1,5 +1,4 @@
 import logging
-import datetime
 import aiohttp
 
 from aioshelly.block_device import COAP, BlockDevice, BlockUpdateType
@@ -24,31 +23,36 @@ class Shelly:
     async def connect_device(self):
         async with aiohttp.ClientSession() as aiohttp_session:
             try:
+                config = Config.instance()
                 if self.gen is None:
                     logging.info("get info from device %s", self.name)
                     info_device = await get_info(
                         aiohttp_session, self.options.ip_address
                     )
                     self.gen = info_device.get("gen", 1)
-                    Config.instance().update_device(
-                        self.name, dict({**info_device, "gen": self.gen})
+                    config.update_device(
+                        device_name=self.name,
+                        info=dict({**info_device, "gen": self.gen}),
                     )
 
+                logging.info("connect to device %s", self.name)
                 if self.gen in BLOCK_GENERATIONS:
                     device = await self._block_device(aiohttp_session)
                 if self.gen in RPC_GENERATIONS:
                     device = await self._rpc_device(aiohttp_session)
-                logging.info("device %s connected!", self.name)
-                device.subscribe_updates(device_updated)
-            except FirmwareUnsupported as err:
-                logging.error("Device firmware not supported, error: %s", repr(err))
-            except InvalidAuthError as err:
-                logging.error("Invalid or missing authorization, error: %s", repr(err))
-            except DeviceConnectionError as err:
+                state = {
+                    block.description: block.current_values() for block in device.blocks
+                }
+                config.update_device(device_name=self.name, state=state)
+            except FirmwareUnsupported:
+                logging.error("Device %s firmware not supported", self.name)
+            except InvalidAuthError:
                 logging.error(
-                    "Error connecting to %s, error: %s",
-                    self.options.ip_address,
-                    repr(err),
+                    "Invalid or missing authorization from device %s", self.name
+                )
+            except DeviceConnectionError:
+                logging.error(
+                    "Error connecting to %s ip: %s", self.name, self.options.ip_address
                 )
 
     async def _block_device(self, aiohttp_session):
@@ -62,16 +66,3 @@ class Shelly:
         await ws_context.initialize(8123)
 
         return await RpcDevice.create(aiohttp_session, ws_context, self.options)
-
-
-def device_updated(
-    cb_device: BlockDevice | RpcDevice,
-    update_type: BlockUpdateType | RpcUpdateType,
-) -> None:
-    print()
-    logging.info(
-        "%s Device updated! (%s)",
-        datetime.datetime.now().strftime("%H:%M:%S"),
-        update_type,
-    )
-    print(cb_device)
