@@ -64,8 +64,9 @@ class Config:
             with open(self.DEVICE_FILENAME, "r") as file_device:
                 device_obj = DeviceObj(**toml.load(file_device))
                 for device_name, device_data in device_obj.device.items():
-                    self.devices.get(device_name).info = device_data.get("info")
-                    self.devices.get(device_name).state = device_data.get("state")
+                    if device_name in self.devices:
+                        self.devices.get(device_name).info = device_data.get("info")
+                        self.devices.get(device_name).state = device_data.get("state")
         except FileNotFoundError:
             pass
 
