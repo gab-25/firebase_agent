@@ -8,7 +8,7 @@
       "name": "Python: Home Link",
       "type": "python",
       "request": "launch",
-      "program": "home_link/main.py",
+      "module": "home_link.main",
       "console": "integratedTerminal",
       "justMyCode": true
     }
