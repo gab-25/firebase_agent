@@ -25,15 +25,20 @@ class Device(pydantic.BaseModel):
 
 class ConfigObj(pydantic.BaseModel):
     log_level: str
-    devices: list[Device] = []
+    devices: list[dict] = []
+
+
+class DeviceObj(pydantic.BaseModel):
+    device: dict[str, dict]
 
 
 class Config:
-    FILENAME = "config.toml"
+    CONFIG_FILENAME = "config.toml"
+    DEVICE_FILENAME = "device.toml"
 
     _instance = None
 
-    devices = {}
+    devices: dict[str, Device] = {}
     log_level = "INFO"
 
     def __init__(self) -> None:
@@ -47,11 +52,19 @@ class Config:
         return cls._instance
 
     def _read_toml(self):
-        logging.info("load config from file %s", self.FILENAME)
-        with open(self.FILENAME, "r") as file:
-            config_obj = ConfigObj(**toml.load(file))
-            self.devices = {device.name: device for device in config_obj.devices}
-            self.log_level = config_obj.log_level.upper()
+        try:
+            with open(self.CONFIG_FILENAME, "r") as file_config:
+                config_obj = ConfigObj(**toml.load(file_config))
+                self.devices = {str(device.get("name")): Device(**device) for device in config_obj.devices}
+                self.log_level = config_obj.log_level.upper()
+
+            with open(self.DEVICE_FILENAME, "r") as file_device:
+                device_obj = DeviceObj(**toml.load(file_device))
+                for device_name, device_data in device_obj.device.items():
+                    self.devices.get(device_name).info = device_data.get("info")
+                    self.devices.get(device_name).state = device_data.get("state")
+        except FileNotFoundError:
+            pass
 
     def update_device(self, device_name: str, info: dict = None, state: dict = None):
         logging.debug("update device %s, info: %s, state: %s", device_name, info, state)
@@ -61,7 +74,10 @@ class Config:
         if state is not None:
             device.state = state
 
-        with open(self.FILENAME, "w") as file:
-            devices = list(self.devices.values())
-            config_obj = ConfigObj(log_level=self.log_level, devices=devices)
-            toml.dump(config_obj.model_dump(), file)
+        with open(self.DEVICE_FILENAME, "w") as file_device:
+            device_items = {
+                d_name: {"info": d_data.info, "state": d_data.state}
+                for d_name, d_data in self.devices.items()
+            }
+            device_obj = DeviceObj(device=device_items)
+            toml.dump(device_obj.model_dump(), file_device)

@@ -32,6 +32,8 @@ def main():
     config = Config.instance()
     logging.getLogger().setLevel(config.log_level)
 
+    logging.debug("load config: %s", config.__dict__)
+
     devices = list(config.devices.values())
     asyncio.run(_init_devices(devices))
 
