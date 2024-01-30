@@ -1,7 +1,9 @@
 from enum import Enum
 import logging
+from typing import Any
 import pydantic
 import toml
+import yaml
 
 
 class Platform(str, Enum):
@@ -23,17 +25,8 @@ class Device(pydantic.BaseModel):
         use_enum_values = True
 
 
-class ConfigObj(pydantic.BaseModel):
-    log_level: str
-    devices: list[dict] = []
-
-
-class DeviceObj(pydantic.BaseModel):
-    device: dict[str, dict]
-
-
 class Config:
-    CONFIG_FILENAME = "config.toml"
+    CONFIG_FILENAME = "config.yaml"
     DEVICE_FILENAME = "device.toml"
 
     _instance = None
@@ -54,16 +47,18 @@ class Config:
     def _read_toml(self):
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
-                config_obj = ConfigObj(**toml.load(file_config))
+                config_obj: dict[str, Any] = yaml.safe_load(file_config)
                 self.devices = {
                     str(device.get("name")): Device(**device)
-                    for device in config_obj.devices
+                    for device in config_obj.get("devices")
                 }
-                self.log_level = config_obj.log_level.upper()
+                self.log_level = config_obj.get("log_level").upper()
 
             with open(self.DEVICE_FILENAME, "r") as file_device:
-                device_obj = DeviceObj(**toml.load(file_device))
-                for device_name, device_data in device_obj.device.items():
+                device_obj = toml.load(file_device)
+                if device_obj.get("device") is None:
+                    return
+                for device_name, device_data in device_obj.get("device").items():
                     if device_name in self.devices:
                         self.devices.get(device_name).info = device_data.get("info")
                         self.devices.get(device_name).state = device_data.get("state")
@@ -83,5 +78,5 @@ class Config:
                 d_name: {"info": d_data.info, "state": d_data.state}
                 for d_name, d_data in self.devices.items()
             }
-            device_obj = DeviceObj(device=device_items)
-            toml.dump(device_obj.model_dump(), file_device)
+            device_obj = {"device": device_items}
+            toml.dump(device_obj, file_device)
