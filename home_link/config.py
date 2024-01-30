@@ -55,7 +55,10 @@ class Config:
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
                 config_obj = ConfigObj(**toml.load(file_config))
-                self.devices = {str(device.get("name")): Device(**device) for device in config_obj.devices}
+                self.devices = {
+                    str(device.get("name")): Device(**device)
+                    for device in config_obj.devices
+                }
                 self.log_level = config_obj.log_level.upper()
 
             with open(self.DEVICE_FILENAME, "r") as file_device:
