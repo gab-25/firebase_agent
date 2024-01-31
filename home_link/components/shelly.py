@@ -1,8 +1,8 @@
 import logging
 import aiohttp
 
-from aioshelly.block_device import COAP, BlockDevice, BlockUpdateType
-from aioshelly.rpc_device import RpcDevice, WsServer, RpcUpdateType
+from aioshelly.block_device import COAP, BlockDevice
+from aioshelly.rpc_device import RpcDevice, WsServer
 from aioshelly.common import ConnectionOptions, get_info
 from aioshelly.const import BLOCK_GENERATIONS, RPC_GENERATIONS
 from aioshelly.exceptions import (
@@ -10,14 +10,15 @@ from aioshelly.exceptions import (
     FirmwareUnsupported,
     InvalidAuthError,
 )
+from home_link.components.base_component import BaseComponent
 
 from home_link.config import Config, Device
 
 
-class Shelly:
-    def __init__(self, device: Device) -> None:
+class Shelly(BaseComponent):
+    def __init__(self, device: Device):
+        super().__init__(device)
         self.options = ConnectionOptions(device.host, device.username, device.password)
-        self.name = device.name
         self.gen = device.info.get("gen") if device.info is not None else None
 
     async def connect_device(self):

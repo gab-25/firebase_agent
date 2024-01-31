@@ -1,3 +1,5 @@
-class MQTT:
-    def __init__(self) -> None:
-        pass
+from home_link.components.base_component import BaseComponent
+
+
+class MQTT(BaseComponent):
+    pass

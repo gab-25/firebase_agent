@@ -1,4 +1,3 @@
-from enum import Enum
 import logging
 from typing import Any
 import pydantic
@@ -6,23 +5,14 @@ import toml
 import yaml
 
 
-class Platform(str, Enum):
-    SHELLY = "shelly"
-    MQTT = "mqtt"
-    HTTP = "http"
-
-
 class Device(pydantic.BaseModel):
-    platform: Platform
+    platform: str
     name: str
     host: str
     username: str = None
     password: str = None
     info: dict = None
     state: dict = None
-
-    class Config:
-        use_enum_values = True
 
 
 class Config:
@@ -45,6 +35,7 @@ class Config:
         return cls._instance
 
     def _read_toml(self):
+        logging.info("load configuration")
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
                 config_obj: dict[str, Any] = yaml.safe_load(file_config)
