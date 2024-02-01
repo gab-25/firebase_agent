@@ -30,11 +30,12 @@ class Shelly(BaseComponent):
                     info_device = await get_info(aiohttp_session, self.options.ip_address)
                     self.gen = info_device.get("gen", 1)
 
-                logging.info("connect to device %s", self.name)
                 if self.gen in BLOCK_GENERATIONS:
+                    logging.info("get status from device %s", self.name)
                     device = await self._block_device(aiohttp_session)
                     state = {block.description: block.current_values() for block in device.blocks}
                 if self.gen in RPC_GENERATIONS:
+                    logging.info("connect to device %s", self.name)
                     device = await self._rpc_device(aiohttp_session)
                     state = device.status
                 info = dict({**device.shelly, "gen": self.gen})
