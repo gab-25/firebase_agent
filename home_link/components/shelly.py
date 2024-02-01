@@ -27,34 +27,24 @@ class Shelly(BaseComponent):
                 config = Config.instance()
                 if self.gen is None:
                     logging.info("get info from device %s", self.name)
-                    info_device = await get_info(
-                        aiohttp_session, self.options.ip_address
-                    )
+                    info_device = await get_info(aiohttp_session, self.options.ip_address)
                     self.gen = info_device.get("gen", 1)
-                    config.update_device(
-                        device_name=self.name,
-                        info=dict({**info_device, "gen": self.gen}),
-                    )
 
                 logging.info("connect to device %s", self.name)
                 if self.gen in BLOCK_GENERATIONS:
                     device = await self._block_device(aiohttp_session)
+                    state = {block.description: block.current_values() for block in device.blocks}
                 if self.gen in RPC_GENERATIONS:
                     device = await self._rpc_device(aiohttp_session)
-                state = {
-                    block.description: block.current_values() for block in device.blocks
-                }
-                config.update_device(device_name=self.name, state=state)
+                    state = device.status
+                info = dict({**device.shelly, "gen": self.gen})
+                config.update_device(device_name=self.name, info=info, state=state)
             except FirmwareUnsupported:
                 logging.error("Device %s firmware not supported", self.name)
             except InvalidAuthError:
-                logging.error(
-                    "Invalid or missing authorization from device %s", self.name
-                )
+                logging.error("Invalid or missing authorization from device %s", self.name)
             except DeviceConnectionError:
-                logging.error(
-                    "Error connecting to %s ip: %s", self.name, self.options.ip_address
-                )
+                logging.error("Error connecting to %s ip: %s", self.name, self.options.ip_address)
 
     async def _block_device(self, aiohttp_session):
         coap_context = COAP()

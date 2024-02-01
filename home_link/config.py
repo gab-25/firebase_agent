@@ -39,10 +39,7 @@ class Config:
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
                 config_obj: dict[str, Any] = yaml.safe_load(file_config)
-                self.devices = {
-                    str(device.get("name")): Device(**device)
-                    for device in config_obj.get("devices")
-                }
+                self.devices = {str(device.get("name")): Device(**device) for device in config_obj.get("devices")}
                 self.log_level = config_obj.get("log_level").upper()
 
             with open(self.DEVICE_FILENAME, "r") as file_device:
@@ -66,8 +63,7 @@ class Config:
 
         with open(self.DEVICE_FILENAME, "w") as file_device:
             device_items = {
-                d_name: {"info": d_data.info, "state": d_data.state}
-                for d_name, d_data in self.devices.items()
+                d_name: {"info": d_data.info, "state": d_data.state} for d_name, d_data in self.devices.items()
             }
             device_obj = {"device": device_items}
             toml.dump(device_obj, file_device)
