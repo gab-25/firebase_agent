@@ -1,11 +1,12 @@
 import logging
-from typing import Any
-import pydantic
+import dataclasses
+import typing
 import toml
 import yaml
 
 
-class Device(pydantic.BaseModel):
+@dataclasses.dataclass
+class Device:
     platform: str
     name: str
     host: str
@@ -39,7 +40,7 @@ class Config:
         logging.info("load configuration")
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
-                config_obj: dict[str, Any] = yaml.safe_load(file_config)
+                config_obj: dict[str, typing.Any] = yaml.safe_load(file_config)
                 if config_obj.get("devices") is None:
                     logging.info("no devices found!")
                     return
