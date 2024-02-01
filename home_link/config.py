@@ -9,6 +9,7 @@ class Device(pydantic.BaseModel):
     platform: str
     name: str
     host: str
+    interval: int = None
     username: str = None
     password: str = None
     info: dict = None

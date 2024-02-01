@@ -22,7 +22,6 @@ class Shelly(BaseComponent):
         self.gen = None
         if device.info is not None:
             self.gen = device.info.get("gen")
-            self.interval = device.info.get("report_period")
 
     async def connect_device(self):
         async with aiohttp.ClientSession() as aiohttp_session:
@@ -32,7 +31,9 @@ class Shelly(BaseComponent):
                     logging.info("get info from device %s", self.name)
                     info_device = await get_info(aiohttp_session, self.options.ip_address)
                     self.gen = info_device.get("gen", 1)
-                    self.interval = info_device.get("report_period", 10) if self.gen == 1 else None
+
+                if self.interval is None and self.gen in BLOCK_GENERATIONS:
+                    self.interval = 10
 
                 if self.gen in BLOCK_GENERATIONS:
                     logging.info("get status from device %s", self.name)
