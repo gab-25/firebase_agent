@@ -15,13 +15,14 @@ logging.basicConfig(
 
 async def _connect_device(device_instance: BaseComponent):
     while True:
-        task = asyncio.create_task(device_instance.connect_device())
-        await task
+        await device_instance.connect_device()
         if device_instance.interval is not None:
             await asyncio.sleep(device_instance.interval)
+        else:
+            break
 
 
-async def main():
+def main():
     logging.info("start home-link")
 
     config = Config.instance()
@@ -29,11 +30,15 @@ async def main():
 
     logging.debug("load config: %s", config.__dict__)
 
+    event_loop = asyncio.get_event_loop()
+
     devices = list(config.devices.values())
     for device in devices:
         device_instance: BaseComponent = CLASS_COMPONENTS.get(device.platform)(device)
-        await _connect_device(device_instance)
+        asyncio.ensure_future(_connect_device(device_instance))
+
+    event_loop.run_forever()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

@@ -16,6 +16,8 @@ from home_link.config import Config, Device
 
 
 class Shelly(BaseComponent):
+    DEFAULT_INTERVAL = 10
+
     def __init__(self, device: Device):
         super().__init__(device)
         self.options = ConnectionOptions(device.host, device.username, device.password)
@@ -32,14 +34,14 @@ class Shelly(BaseComponent):
                     info_device = await get_info(aiohttp_session, self.options.ip_address)
                     self.gen = info_device.get("gen", 1)
 
-                if self.interval is None and self.gen in BLOCK_GENERATIONS:
-                    self.interval = 10
-
                 if self.gen in BLOCK_GENERATIONS:
+                    if self.interval is None:
+                        self.interval = self.DEFAULT_INTERVAL
                     logging.info("get status from device %s", self.name)
                     device = await self._block_device(aiohttp_session)
                     state = {block.description: block.current_values() for block in device.blocks}
                 if self.gen in RPC_GENERATIONS:
+                    self.interval = None
                     logging.info("connect to device %s", self.name)
                     device = await self._rpc_device(aiohttp_session)
                     state = device.status
@@ -50,7 +52,8 @@ class Shelly(BaseComponent):
             except InvalidAuthError:
                 logging.error("invalid or missing authorization from device %s", self.name)
             except DeviceConnectionError:
-                logging.error("error connecting to %s ip: %s", self.name, self.options.ip_address)
+                logging.error("error connecting to %s ip: %s, try again in %s seconds", self.name, self.options.ip_address, self.DEFAULT_INTERVAL)
+                self.interval = self.DEFAULT_INTERVAL
 
     async def _block_device(self, aiohttp_session):
         coap_context = COAP()
