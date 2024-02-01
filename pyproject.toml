@@ -6,11 +6,11 @@ authors = ["gab25 <gabrielesorci.25@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10,<3.13"
-aioshelly = "^8.0.1"
+python = "^3.10"
 toml = "^0.10.2"
 firebase-admin = "^6.4.0"
 pyyaml = "^6.0.1"
+paho-mqtt = "^1.6.1"
 
 [build-system]
 requires = ["poetry-core"]

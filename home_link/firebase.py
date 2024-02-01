@@ -1,0 +1,2 @@
+class Firebase:
+    pass
