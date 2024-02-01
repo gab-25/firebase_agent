@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from home_link.components import COMPONENTS
+from home_link.components import CLASS_COMPONENTS
 from home_link.components.base_component import BaseComponent
 
 from home_link.config import Config
@@ -23,7 +23,7 @@ async def main():
 
     devices = list(config.devices.values())
     for device in devices:
-        device_instance: BaseComponent = COMPONENTS.get(device.platform)(device)
+        device_instance: BaseComponent = CLASS_COMPONENTS.get(device.platform)(device)
         task = asyncio.create_task(device_instance.connect_device())
         await task
 

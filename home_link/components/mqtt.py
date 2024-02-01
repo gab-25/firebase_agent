@@ -2,4 +2,5 @@ from home_link.components.base_component import BaseComponent
 
 
 class MQTT(BaseComponent):
-    pass
+    async def connect_device(self):
+        pass
