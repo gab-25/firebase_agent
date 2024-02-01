@@ -52,7 +52,7 @@ class Shelly(BaseComponent):
             except InvalidAuthError:
                 logging.error("invalid or missing authorization from device %s", self.name)
             except DeviceConnectionError:
-                logging.error("error connecting to %s ip: %s, try again in %s seconds", self.name, self.options.ip_address, self.DEFAULT_INTERVAL)
+                logging.error("error connecting to %s ip: %s, try again in %s seconds!", self.name, self.options.ip_address, self.DEFAULT_INTERVAL)
                 self.interval = self.DEFAULT_INTERVAL
 
     async def _block_device(self, aiohttp_session):
