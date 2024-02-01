@@ -19,7 +19,10 @@ class Shelly(BaseComponent):
     def __init__(self, device: Device):
         super().__init__(device)
         self.options = ConnectionOptions(device.host, device.username, device.password)
-        self.gen = device.info.get("gen") if device.info is not None else None
+        self.gen = None
+        if device.info is not None:
+            self.gen = device.info.get("gen")
+            self.interval = device.info.get("report_period")
 
     async def connect_device(self):
         async with aiohttp.ClientSession() as aiohttp_session:
@@ -29,6 +32,7 @@ class Shelly(BaseComponent):
                     logging.info("get info from device %s", self.name)
                     info_device = await get_info(aiohttp_session, self.options.ip_address)
                     self.gen = info_device.get("gen", 1)
+                    self.interval = info_device.get("report_period", 10) if self.gen == 1 else None
 
                 if self.gen in BLOCK_GENERATIONS:
                     logging.info("get status from device %s", self.name)
@@ -41,11 +45,11 @@ class Shelly(BaseComponent):
                 info = dict({**device.shelly, "gen": self.gen})
                 config.update_device(device_name=self.name, info=info, state=state)
             except FirmwareUnsupported:
-                logging.error("Device %s firmware not supported", self.name)
+                logging.error("device %s firmware not supported", self.name)
             except InvalidAuthError:
-                logging.error("Invalid or missing authorization from device %s", self.name)
+                logging.error("invalid or missing authorization from device %s", self.name)
             except DeviceConnectionError:
-                logging.error("Error connecting to %s ip: %s", self.name, self.options.ip_address)
+                logging.error("error connecting to %s ip: %s", self.name, self.options.ip_address)
 
     async def _block_device(self, aiohttp_session):
         coap_context = COAP()

@@ -13,6 +13,14 @@ logging.basicConfig(
 )
 
 
+async def _connect_device(device_instance: BaseComponent):
+    while True:
+        task = asyncio.create_task(device_instance.connect_device())
+        await task
+        if device_instance.interval is not None:
+            await asyncio.sleep(device_instance.interval)
+
+
 async def main():
     logging.info("start home-link")
 
@@ -24,8 +32,7 @@ async def main():
     devices = list(config.devices.values())
     for device in devices:
         device_instance: BaseComponent = CLASS_COMPONENTS.get(device.platform)(device)
-        task = asyncio.create_task(device_instance.connect_device())
-        await task
+        await _connect_device(device_instance)
 
 
 if __name__ == "__main__":

@@ -39,6 +39,9 @@ class Config:
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
                 config_obj: dict[str, Any] = yaml.safe_load(file_config)
+                if config_obj.get("devices") is None:
+                    logging.info("no devices found!")
+                    return
                 self.devices = {str(device.get("name")): Device(**device) for device in config_obj.get("devices")}
                 self.log_level = config_obj.get("log_level").upper()
 
