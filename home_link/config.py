@@ -27,6 +27,7 @@ class Device:
     platform: str
     name: str
     host: str
+    port: str
     data_type: str
     topic: str = None
     interval: int = None
@@ -63,13 +64,12 @@ class Config:
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
                 config_obj: dict[str, typing.Any] = yaml.safe_load(file_config)
-                if config_obj.get("server_http") is not None:
-                    self.server_http = ServerHttp(**config_obj.get("server_http"))
+                self.log_level = config_obj.get("log_level").upper()
+                self.server_http = ServerHttp(**config_obj.get("server_http"))
                 if config_obj.get("devices") is None:
                     logging.info("no devices found!")
                     return
                 self.devices = {str(device.get("name")): Device(**device) for device in config_obj.get("devices")}
-                self.log_level = config_obj.get("log_level").upper()
 
             with open(self.DEVICE_FILENAME, "r") as file_device:
                 device_obj = toml.load(file_device)

@@ -34,7 +34,7 @@ def main():
 
     devices = list(config.devices.values())
     for device in devices:
-        device_instance: AbstractComponent = platforms.get(device.platform)(device)
+        device_instance: AbstractComponent = platforms().get(device.platform)(device)
         asyncio.ensure_future(_connect_device(device_instance))
 
     event_loop.run_forever()
