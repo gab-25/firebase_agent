@@ -14,15 +14,6 @@ class ServerHttp:
 
 
 @dataclasses.dataclass
-class Entity:
-    name: str
-    type: str
-    property: str = None
-    topic: str = None
-    url: str = None
-
-
-@dataclasses.dataclass
 class Device:
     platform: str
     name: str
@@ -33,10 +24,7 @@ class Device:
     interval: int = None
     username: str = None
     password: str = None
-    info: dict = None
     state: dict = None
-
-    entities: list[Entity] = None
 
 
 class Config:
@@ -77,22 +65,17 @@ class Config:
                     return
                 for device_name, device_data in device_obj.get("device").items():
                     if device_name in self.devices:
-                        self.devices.get(device_name).info = device_data.get("info")
                         self.devices.get(device_name).state = device_data.get("state")
         except FileNotFoundError:
             pass
 
-    def update_device(self, device_name: str, info: dict = None, state: dict = None):
-        logging.debug("update device %s, info: %s, state: %s", device_name, info, state)
+    def update_device_state(self, device_name: str, state: dict = None):
+        logging.debug("update device %s, state: %s", device_name, state)
         device = self.devices.get(device_name)
-        if info is not None:
-            device.info = info
         if state is not None:
             device.state = state
 
         with open(self.DEVICE_FILENAME, "w") as file_device:
-            device_items = {
-                d_name: {"info": d_data.info, "state": d_data.state} for d_name, d_data in self.devices.items()
-            }
+            device_items = {d_name: {"state": d_data.state} for d_name, d_data in self.devices.items()}
             device_obj = {"device": device_items}
             toml.dump(device_obj, file_device)

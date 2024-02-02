@@ -2,4 +2,7 @@ import abc
 
 
 class AbstractParser(abc.ABC):
-    pass
+
+    @abc.abstractmethod
+    def parse(self):
+        pass

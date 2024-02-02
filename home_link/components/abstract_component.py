@@ -1,6 +1,6 @@
 import abc
 
-from home_link.config import Device
+from home_link.config import Config, Device
 
 
 class AbstractComponent(abc.ABC):
@@ -9,7 +9,14 @@ class AbstractComponent(abc.ABC):
         self.port = device.port
         self.name = device.name
         self.interval = device.interval
+        self.state = device.state
 
     @abc.abstractmethod
     async def connect(self):
         pass
+
+    def update_state(self, new_value: dict):
+        if self.state is None:
+            self.state = {}
+        self.state.update(new_value)
+        Config.instance().update_device_state(self.name, self.state)
