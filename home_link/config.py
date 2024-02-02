@@ -79,6 +79,5 @@ class Config:
         if not os.path.exists("data"):
             os.mkdir("data")
         with open(os.path.join("data", self.DEVICE_FILENAME.format(device_name)), "w") as file_device:
-            entity_items = {e_name: e_data for e_name, e_data in device.entities.items()}
-            entity_obj = {"entity": entity_items}
-            toml.dump(entity_obj, file_device)
+            entities_obj = {"entity": {e_name: dataclasses.asdict(e_data)} for e_name, e_data in device.entities.items()}
+            toml.dump(entities_obj, file_device)
