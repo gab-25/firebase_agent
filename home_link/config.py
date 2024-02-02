@@ -19,6 +19,7 @@ class Device:
     platform: str
     name: str
     host: str
+    data_type: str
     topic: str = None
     interval: int = None
     username: str = None

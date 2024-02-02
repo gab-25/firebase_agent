@@ -2,7 +2,7 @@ from home_link.components.abstract_component import AbstractComponent
 from home_link.config import Device
 
 
-class HTTP(AbstractComponent):
+class Http(AbstractComponent):
     DEFAULT_INTERVAL = 10
 
     def __init__(self, device: Device):
