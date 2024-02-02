@@ -26,6 +26,9 @@ class Mqtt(AbstractComponent):
 
     def _on_message(self, client, userdata, msg):
         logging.info("mqtt message received! topic: %s device: %s value: %s", msg.topic, self.name, msg.payload)
-        property = msg.topic.split("/")[-1]
-        value = msg.payload
-        self.update_state({property: value})
+        name: str = msg.topic.replace(self.topic, "")
+        data = msg.payload
+        if isinstance(data, bytes):
+            data = data.decode()
+        new_entity = self.decode_entity(name, data)
+        self.update_entity(new_entity)

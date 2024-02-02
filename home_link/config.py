@@ -1,5 +1,6 @@
 import logging
 import dataclasses
+import os
 import typing
 import toml
 import yaml
@@ -14,6 +15,13 @@ class ServerHttp:
 
 
 @dataclasses.dataclass
+class Entity:
+    name: str
+    value: typing.Any
+    unit_of_measure: str
+
+
+@dataclasses.dataclass
 class Device:
     platform: str
     name: str
@@ -24,12 +32,12 @@ class Device:
     interval: int = None
     username: str = None
     password: str = None
-    state: dict = None
+    entities: dict[str, Entity] = None
 
 
 class Config:
     CONFIG_FILENAME = "config.yaml"
-    DEVICE_FILENAME = "device_data.toml"
+    DEVICE_FILENAME = "device_{}.toml"
 
     _instance = None
 
@@ -58,24 +66,19 @@ class Config:
                     logging.info("no devices found!")
                     return
                 self.devices = {str(device.get("name")): Device(**device) for device in config_obj.get("devices")}
-
-            with open(self.DEVICE_FILENAME, "r") as file_device:
-                device_obj = toml.load(file_device)
-                if device_obj.get("device") is None:
-                    return
-                for device_name, device_data in device_obj.get("device").items():
-                    if device_name in self.devices:
-                        self.devices.get(device_name).state = device_data.get("state")
         except FileNotFoundError:
             pass
 
-    def update_device_state(self, device_name: str, state: dict = None):
-        logging.debug("update device %s, state: %s", device_name, state)
+    def update_device_entity(self, device_name: str, new_entity: Entity):
+        logging.debug("update device %s, entity: %s", device_name, new_entity.name)
         device = self.devices.get(device_name)
-        if state is not None:
-            device.state = state
+        if device.entities is None:
+            device.entities = {}
+        device.entities.update({new_entity.name: new_entity})
 
-        with open(self.DEVICE_FILENAME, "w") as file_device:
-            device_items = {d_name: {"state": d_data.state} for d_name, d_data in self.devices.items()}
-            device_obj = {"device": device_items}
-            toml.dump(device_obj, file_device)
+        if not os.path.exists("data"):
+            os.mkdir("data")
+        with open(os.path.join("data", self.DEVICE_FILENAME.format(device_name)), "w") as file_device:
+            entity_items = {e_name: e_data for e_name, e_data in device.entities.items()}
+            entity_obj = {"entity": entity_items}
+            toml.dump(entity_obj, file_device)
