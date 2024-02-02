@@ -6,6 +6,14 @@ import yaml
 
 
 @dataclasses.dataclass
+class ServerHttp:
+    host: str
+    port: int
+    username: str = None
+    password: str = None
+
+
+@dataclasses.dataclass
 class Entity:
     name: str
     type: str
@@ -36,6 +44,7 @@ class Config:
 
     _instance = None
 
+    server_http: dict = None
     devices: dict[str, Device] = {}
     log_level = "INFO"
 
@@ -54,6 +63,8 @@ class Config:
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
                 config_obj: dict[str, typing.Any] = yaml.safe_load(file_config)
+                if config_obj.get("server_http") is not None:
+                    self.server_http = ServerHttp(**config_obj.get("server_http"))
                 if config_obj.get("devices") is None:
                     logging.info("no devices found!")
                     return
