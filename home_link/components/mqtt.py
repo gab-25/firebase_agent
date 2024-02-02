@@ -1,11 +1,11 @@
-from home_link.components.base_component import BaseComponent
+from home_link.components.abstract_component import AbstractComponent
 from home_link.config import Device
 
 
-class MQTT(BaseComponent):
+class MQTT(AbstractComponent):
     def __init__(self, device: Device):
         super().__init__(device)
         self.interval = None
 
-    async def connect_device(self):
+    async def connect(self):
         pass

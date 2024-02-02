@@ -6,20 +6,32 @@ import yaml
 
 
 @dataclasses.dataclass
+class Entity:
+    name: str
+    type: str
+    property: str = None
+    topic: str = None
+    url: str = None
+
+
+@dataclasses.dataclass
 class Device:
     platform: str
     name: str
     host: str
+    topic: str = None
     interval: int = None
     username: str = None
     password: str = None
     info: dict = None
     state: dict = None
 
+    entities: list[Entity] = None
+
 
 class Config:
     CONFIG_FILENAME = "config.yaml"
-    DEVICE_FILENAME = "device.toml"
+    DEVICE_FILENAME = "device_data.toml"
 
     _instance = None
 

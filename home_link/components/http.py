@@ -1,8 +1,8 @@
-from home_link.components.base_component import BaseComponent
+from home_link.components.abstract_component import AbstractComponent
 from home_link.config import Device
 
 
-class HTTP(BaseComponent):
+class HTTP(AbstractComponent):
     DEFAULT_INTERVAL = 10
 
     def __init__(self, device: Device):
@@ -10,5 +10,5 @@ class HTTP(BaseComponent):
         if self.interval is None:
             self.interval = self.DEFAULT_INTERVAL
 
-    async def connect_device(self):
+    async def connect(self):
         pass

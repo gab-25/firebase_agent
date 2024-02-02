@@ -1,7 +1,7 @@
 import asyncio
 import logging
-from home_link.components import CLASS_COMPONENTS
-from home_link.components.base_component import BaseComponent
+from home_link.components import platforms
+from home_link.components.abstract_component import AbstractComponent
 
 from home_link.config import Config
 
@@ -13,9 +13,9 @@ logging.basicConfig(
 )
 
 
-async def _connect_device(device_instance: BaseComponent):
+async def _connect_device(device_instance: AbstractComponent):
     while True:
-        await device_instance.connect_device()
+        await device_instance.connect()
         if device_instance.interval is not None:
             await asyncio.sleep(device_instance.interval)
         else:
@@ -34,7 +34,7 @@ def main():
 
     devices = list(config.devices.values())
     for device in devices:
-        device_instance: BaseComponent = CLASS_COMPONENTS.get(device.platform)(device)
+        device_instance: AbstractComponent = platforms.get(device.platform)(device)
         asyncio.ensure_future(_connect_device(device_instance))
 
     event_loop.run_forever()
