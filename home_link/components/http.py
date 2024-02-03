@@ -1,3 +1,4 @@
+import requests
 from home_link.components.abstract_component import AbstractComponent
 from home_link.config import Device
 
