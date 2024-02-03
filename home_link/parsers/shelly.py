@@ -25,7 +25,7 @@ class Shelly(AbstractParser):
             if entity_name.endswith("energy") or entity_name.endswith("returned_energy"):
                 entity.value = float(value)
                 entity.unit_of_measure = "kWh"
-        elif entity_name.startswith("relay") or entity_name.startswith("input"):
+        elif entity_name.startswith("relay") or entity_name.startswith("input") or entity_name.startswith("online"):
             entity.value = value == "true" or value == "on"
             entity.unit_of_measure = None
 
