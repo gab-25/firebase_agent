@@ -1,5 +1,6 @@
 import abc
 import typing
+from home_link.firebase import Firebase
 from home_link.parsers import data_types
 
 from home_link.config import Config, Device, Entity
@@ -23,5 +24,7 @@ class AbstractComponent(abc.ABC):
     def decode_entity(self, name: str, data: typing.Any) -> Entity:
         return self.parser.parse(name, data)
 
-    def update_entity(self, new_entity: Entity):
-        Config.instance().update_device_entity(self.name, new_entity)
+    def publish_entity(self, new_entity: Entity):
+        firebase = Firebase.instance()
+        if firebase.is_initialize:
+            firebase.publish(self.name, new_entity)

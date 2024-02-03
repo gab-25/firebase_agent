@@ -31,4 +31,4 @@ class Mqtt(AbstractComponent):
         if isinstance(data, bytes):
             data = data.decode()
         new_entity = self.decode_entity(name, data)
-        self.update_entity(new_entity)
+        self.publish_entity(new_entity)

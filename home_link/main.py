@@ -4,6 +4,7 @@ from home_link.components import platforms
 from home_link.components.abstract_component import AbstractComponent
 
 from home_link.config import Config
+from home_link.firebase import Firebase
 
 
 logging.basicConfig(
@@ -28,6 +29,9 @@ def main():
     config = Config.instance()
     logging.getLogger().setLevel(config.log_level)
 
+    if config.firebase is not None:
+        Firebase.instance().init_firebase(config.firebase.cert_json)
+
     logging.debug("load config: %s", config.__dict__)
 
     event_loop = asyncio.get_event_loop()
@@ -45,3 +49,5 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         pass
+    except Exception as err:
+        logging.error(err)
