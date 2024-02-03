@@ -1,9 +1,8 @@
 import abc
-import typing
+from typing import Any
 from home_link.firebase import Firebase
 from home_link.parsers import data_types
-
-from home_link.models import Device,Entity
+from home_link.models import Device, Entity
 from home_link.parsers.abstract_parser import AbstractParser
 
 
@@ -21,8 +20,8 @@ class AbstractComponent(abc.ABC):
     async def connect(self):
         pass
 
-    def decode_entity(self, name: str, data: typing.Any) -> Entity:
-        return self.parser.parse(name, data)
+    def decode_entity(self, entity_name: str, data: Any) -> Entity:
+        return self.parser.parse(entity_name, data)
 
     def publish_entity(self, new_entity: Entity):
         firebase = Firebase.instance()

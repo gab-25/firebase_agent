@@ -1,4 +1,5 @@
 import logging
+import re
 import paho.mqtt.client as mqtt
 from home_link.components.abstract_component import AbstractComponent
 from home_link.models import Device
@@ -26,9 +27,12 @@ class Mqtt(AbstractComponent):
 
     def _on_message(self, client, userdata, msg):
         logging.info("mqtt message received! topic: %s device: %s value: %s", msg.topic, self.name, msg.payload)
-        name: str = msg.topic.replace(self.topic, "")
+        entity_name: str = msg.topic.replace(self.topic, "")
+        if re.match("/", entity_name):
+            paths = filter(lambda n : len(n) > 0, entity_name.split("/"))
+            entity_name = ".".join(paths)
         data = msg.payload
         if isinstance(data, bytes):
             data = data.decode()
-        new_entity = self.decode_entity(name, data)
+        new_entity = self.decode_entity(entity_name, data)
         self.publish_entity(new_entity)

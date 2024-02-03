@@ -1,9 +1,8 @@
 import logging
 import dataclasses
-import typing
 import enum
+from typing import Any
 import yaml
-
 from home_link.models import Device
 
 
@@ -52,7 +51,7 @@ class Config:
         logging.info("load configuration")
         try:
             with open(self.CONFIG_FILENAME, "r") as file_config:
-                config_obj: dict[str, typing.Any] = yaml.safe_load(file_config)
+                config_obj: dict[str, Any] = yaml.safe_load(file_config)
                 if ConfigKey.LOG_LEVEL.value in config_obj:
                     self.log_level = config_obj.get(ConfigKey.LOG_LEVEL.value).upper()
                 if ConfigKey.HTTP_SERVER.value in config_obj:

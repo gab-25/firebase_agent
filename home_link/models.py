@@ -1,13 +1,12 @@
 import dataclasses
 import datetime
-import typing
+from typing import Any
 
 
 @dataclasses.dataclass
 class Entity:
     name: str
-    type: str
-    value: typing.Any
+    value: Any
     unit_of_measure: str
     ts: datetime.datetime
 
