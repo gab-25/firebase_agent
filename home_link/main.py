@@ -44,10 +44,14 @@ def main():
     event_loop.run_forever()
 
 
-if __name__ == "__main__":
+def run():
     try:
         main()
     except KeyboardInterrupt:
         pass
     except Exception as err:
         logging.error(err)
+
+
+if __name__ == "__main__":
+    run()

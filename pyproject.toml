@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "home-link"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["gab25 <gabrielesorci.25@gmail.com>"]
 readme = "README.md"
@@ -10,6 +10,9 @@ python = "^3.10"
 firebase-admin = "^6.4.0"
 pyyaml = "^6.0.1"
 paho-mqtt = "^1.6.1"
+
+[tool.poetry.scripts]
+home-link = "home_link.main:run"
 
 [build-system]
 requires = ["poetry-core"]
