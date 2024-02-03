@@ -3,7 +3,7 @@ import typing
 from home_link.firebase import Firebase
 from home_link.parsers import data_types
 
-from home_link.config import Config, Device, Entity
+from home_link.models import Device,Entity
 from home_link.parsers.abstract_parser import AbstractParser
 
 

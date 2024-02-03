@@ -1,7 +1,7 @@
 import logging
 import paho.mqtt.client as mqtt
 from home_link.components.abstract_component import AbstractComponent
-from home_link.config import Device
+from home_link.models import Device
 
 
 class Mqtt(AbstractComponent):

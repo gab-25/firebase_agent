@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-from home_link.config import Entity
+from home_link.models import Entity
 
 
 class Firebase:

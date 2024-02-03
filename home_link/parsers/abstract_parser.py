@@ -1,7 +1,7 @@
 import abc
 import typing
 
-from home_link.config import Entity
+from home_link.models import Entity
 
 
 class AbstractParser(abc.ABC):
