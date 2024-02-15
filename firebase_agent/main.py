@@ -1,32 +1,19 @@
-import datetime
-import requests
+import configparser
 import firebase_admin
-from firebase_admin import credentials, firestore
-
-HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyNmFkY2JiMTZiNGU0ZDRhYjc1OTJlNWE0ZThlNTQ4YiIsImlhdCI6MTcwNzk5MDk2NywiZXhwIjoyMDIzMzUwOTY3fQ.eTLEJXJIy-98rfmjCEoDvAqJa8Sj66f3yd7HLBFbZCw"
-HA_SENSOR_URL = "https://ha.gabprojects.dev:8123/api/states/sensor.shellyem_ba51f9_channel_1_energy"
-INIT_APP = False
+from firebase_admin import credentials
+from firebase_agent import run
 
 
 def main():
-    if INIT_APP:
-        cred = credentials.Certificate("./service_account_firebase.json")
-        firebase_admin.initialize_app(cred)
-    db = firestore.client()
+    cred = credentials.Certificate("./service_account_firebase.json")
+    firebase_admin.initialize_app(cred)
 
-    headers = {
-        "Authorization": f"Bearer {HA_TOKEN}",
-        "content-type": "application/json",
-    }
-    response = requests.get(HA_SENSOR_URL, headers=headers)
-    data = response.json()
+    config = configparser.ConfigParser()
+    config.read("./config")
 
-    ts = datetime.datetime.utcnow().replace(minute=0, second=0, microsecond=0)
-    doc = {"ts": ts, "value": data["state"], "data": data}
-
-    coll_ref = db.collection("energy")
-    coll_ref.add(doc)
-    print("add to firestore collection, document:", doc)
+    url = config["DEFAULT"]["SENSOR_URL"]
+    token = config["DEFAULT"]["TOKEN"]
+    run(url, token)
 
 
 if __name__ == "__main__":
