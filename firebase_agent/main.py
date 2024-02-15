@@ -5,11 +5,13 @@ from firebase_admin import credentials, firestore
 
 HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyNmFkY2JiMTZiNGU0ZDRhYjc1OTJlNWE0ZThlNTQ4YiIsImlhdCI6MTcwNzk5MDk2NywiZXhwIjoyMDIzMzUwOTY3fQ.eTLEJXJIy-98rfmjCEoDvAqJa8Sj66f3yd7HLBFbZCw"
 HA_SENSOR_URL = "https://ha.gabprojects.dev:8123/api/states/sensor.shellyem_ba51f9_channel_1_energy"
+INIT_APP = False
 
 
 def main():
-    cred = credentials.Certificate("./service_account_firebase.json")
-    firebase_admin.initialize_app(cred)
+    if INIT_APP:
+        cred = credentials.Certificate("./service_account_firebase.json")
+        firebase_admin.initialize_app(cred)
     db = firestore.client()
 
     headers = {
