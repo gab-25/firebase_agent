@@ -6,8 +6,9 @@ authors = ["gab25 <gabrielesorci.25@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-
+python = "^3.11"
+requests = "^2.31.0"
+firebase-admin = "^6.4.0"
 
 [build-system]
 requires = ["poetry-core"]

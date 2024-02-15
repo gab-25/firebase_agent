@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Home Link",
+      "name": "Python: Firebase Agent",
       "type": "python",
       "request": "launch",
-      "module": "home_link.main",
+      "module": "firebase_agent.main",
       "console": "integratedTerminal",
       "justMyCode": true
     }
