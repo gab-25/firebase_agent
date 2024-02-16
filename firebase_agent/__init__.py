@@ -42,12 +42,18 @@ def run(config_entities: list[ConfigEntity]):
         if config_entity.create_aggregate is not None:
             start_today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
             end_today = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
+
+            docs_query_to_delete = coll_entity_aggregate_ref.where(filter=FieldFilter("ts", ">=", start_today)).where(
+                filter=FieldFilter("ts", "<=", end_today)
+            )
+            for doc_query_to_delete in docs_query_to_delete.get():
+                coll_entity_aggregate_ref.document(doc_query_to_delete.id).delete()
+                print(f"remove to firestore collection: {coll_entity_aggregate_ref.id}, document: {doc_query_to_delete.id}")
             docs_query = (
                 coll_entity_ref.where(filter=FieldFilter("ts", ">=", start_today))
                 .where(filter=FieldFilter("ts", "<=", end_today))
                 .order_by("ts")
             )
-
             dict_entity_aggregate: dict[datetime.datetime, EntityAggregate] = {}
             for doc_query in docs_query.get():
                 entity = Entity(**doc_query.to_dict())
