@@ -69,5 +69,12 @@ def run(config_entities: list[ConfigEntity]):
                 current_aggregate_hourly = dict_entity_aggregate.get(ts_key_daily)
                 current_aggregate_hourly.add_value(entity.value)
             for entity_aggregate in dict_entity_aggregate.values():
-                doc_ref = coll_entity_aggregate_ref.add(entity_aggregate.to_dict())
-                print(f"add to firestore collection: {coll_entity_aggregate_ref.id}, document: {doc_ref[1].id}")
+                doc_entity_aggregate_exist = coll_entity_aggregate_ref.where(filter=FieldFilter("start_ts", "==", entity_aggregate.start_ts)).where(
+                    filter=FieldFilter("end_ts", "==", entity_aggregate.end_ts)
+                ).limit(1).get()
+                if len(doc_entity_aggregate_exist) == 0:
+                    doc_ref = coll_entity_aggregate_ref.add(entity_aggregate.to_dict())
+                    print(f"add to firestore collection: {coll_entity_aggregate_ref.id}, document: {doc_ref[1].id}")
+                if len(doc_entity_aggregate_exist) == 1 and entity_aggregate.count != doc_entity_aggregate_exist[0].get("count"):
+                    coll_entity_aggregate_ref.document(doc_entity_aggregate_exist[0].id).update(entity_aggregate.to_dict())
+                    print(f"update to firestore collection: {coll_entity_aggregate_ref.id}, document: {doc_entity_aggregate_exist[0].id}")
