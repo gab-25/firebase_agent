@@ -8,11 +8,11 @@ class Entity:
     def __init__(
         self,
         ts: datetime.datetime = datetime.datetime.utcnow(),
-        value: float | str = 0,
+        value: float = 0,
         data: dict = None,
     ) -> None:
         self.ts = ts
-        self.value = float(value) if isinstance(value, str) else value
+        self.value = float(value)
         self.data = data
 
     def to_dict(self) -> dict:
@@ -30,11 +30,12 @@ class EntityAggregate:
     avg: float = 0
     sum: float = 0
     count: int = 0
-    values = []
+    values: list[float]
 
     def __init__(self, start_ts: datetime.datetime, end_ts: datetime.datetime) -> None:
         self.start_ts = start_ts
         self.end_ts = end_ts
+        self.values = []
 
     def add_value(self, value: float) -> None:
         self.values.append(value)
