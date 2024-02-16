@@ -15,6 +15,13 @@ class Entity:
         self.value = float(value) if isinstance(value, str) else value
         self.data = data
 
+    def to_dict(self) -> dict:
+        return {
+            "ts": self.ts,
+            "value": self.value,
+            "data": self.data,
+        }
+
 
 class EntityAggregate:
     id: str = None
@@ -25,8 +32,9 @@ class EntityAggregate:
     count: int = 0
     values = []
 
-    def __init__(self, ts: datetime.datetime) -> None:
-        self.ts = ts
+    def __init__(self, start_ts: datetime.datetime, end_ts: datetime.datetime) -> None:
+        self.start_ts = start_ts
+        self.end_ts = end_ts
 
     def add_value(self, value: float) -> None:
         self.values.append(value)
@@ -35,3 +43,15 @@ class EntityAggregate:
         self.avg = numpy.average(self.values)
         self.sum = numpy.sum(self.values)
         self.count = len(self.values)
+
+    def to_dict(self) -> dict:
+        return {
+            "start_ts": self.start_ts,
+            "end_ts": self.end_ts,
+            "max": self.max,
+            "min": self.min,
+            "avg": self.avg,
+            "sum": self.sum,
+            "count": self.count,
+            "values": self.values,
+        }

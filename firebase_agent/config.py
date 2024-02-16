@@ -7,12 +7,6 @@ class ConfigEntityType(enum.Enum):
     HTTP = "http"
 
 
-class ConfigEntityAggregateType(enum.Enum):
-    DAILY = "daily"
-    HOURLY = "hourly"
-    MINUTE = "minute"
-
-
 @dataclasses.dataclass
 class ConfigEntity:
     type: ConfigEntityType
@@ -22,7 +16,7 @@ class ConfigEntity:
     password: str = None
     token: str = None
     value_prop: str = None
-    create_aggregate: ConfigEntityAggregateType = None
+    create_aggregate: bool = False
 
 
 _config = configparser.ConfigParser()
@@ -40,7 +34,7 @@ def _get_config_entities() -> list[ConfigEntity]:
             password=_config[section].get("password"),
             token=_config[section].get("token"),
             value_prop=_config[section].get("value_prop"),
-            create_aggregate=ConfigEntityAggregateType(_config[section].get("create_aggregate")),
+            create_aggregate=_config[section].getboolean("create_aggregate"),
         )
         _config_entities.append(config_entity)
     return _config_entities
