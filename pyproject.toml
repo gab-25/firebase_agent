@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firebase-agent"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = ["gab25 <gabrielesorci.25@gmail.com>"]
 readme = "README.md"
@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 requests = "^2.31.0"
 firebase-admin = "^6.4.0"
+numpy = "^1.26.4"
 
 [build-system]
 requires = ["poetry-core"]

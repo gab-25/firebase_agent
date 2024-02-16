@@ -1,28 +1,37 @@
-import dataclasses
-import enum
-import abc
+import datetime
+import numpy
 
 
-class EntityType(enum.Enum):
-    HTTP = "http"
+class Entity:
+    id: str = None
+
+    def __init__(
+        self,
+        ts: datetime.datetime = datetime.datetime.utcnow(),
+        value: float | str = 0,
+        data: dict = None,
+    ) -> None:
+        self.ts = ts
+        self.value = float(value) if isinstance(value, str) else value
+        self.data = data
 
 
-class EntityAggregateType(enum.Enum):
-    DAILY = "daily"
-    HOURLY = "hourly"
-    MINUTE = "minute"
+class EntityAggregate:
+    id: str = None
+    max: float = 0
+    min: float = 0
+    avg: float = 0
+    sum: float = 0
+    count: int = 0
+    values = []
 
+    def __init__(self, ts: datetime.datetime) -> None:
+        self.ts = ts
 
-class Entity(abc.ABC):
-    pass
-
-
-@dataclasses.dataclass
-class HttpEntity(Entity):
-    name: str
-    url: str
-    username: str = None
-    password: str = None
-    token: str = None
-    value_prop: str = None
-    create_aggregate: EntityAggregateType = None
+    def add_value(self, value: float) -> None:
+        self.values.append(value)
+        self.max = numpy.max(self.values)
+        self.min = numpy.min(self.values)
+        self.avg = numpy.average(self.values)
+        self.sum = numpy.sum(self.values)
+        self.count = len(self.values)
